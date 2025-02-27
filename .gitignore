@@ -1,0 +1,12 @@
+.idea/
+.vscode/
+.DS_Store
+__pycache__/
+logs/
+*.pyc
+*.log*
+dist/
+data/
+seg/
+.venv/
+*.zip/

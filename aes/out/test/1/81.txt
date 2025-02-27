@@ -1,0 +1,52 @@
+<think>
+Okay, so I need to help this user who wants me to act as a student writing an essay on the benefits of a problem. The user provided specific criteria for each level: VG, LF, and EA. Let me make sure I understand what each stands for.
+
+VG is for Very Good, where the text has numerous vocabulary errors and grammatical issues that really affect comprehension or have a low word count with simple uses of words. So, if someone gets a VG score, their writing would be quite basic but might use some complex words unintentionally.
+
+LF is Lower Than Average Fluency, which means the expressions are chaotic with multiple inconsistencies. This implies that while there's an attempt to write about the topic, it's very unclear and filled with mistakes in grammar or vocabulary. The sentences might jump around a lot without logical flow.
+
+EA stands for Eerily Average; it's on topic but not easy to understand in some places. So here, the ideas are clear, but the language is weak or awkward in certain sections, making parts of the essay hard to follow despite being relevant.
+
+The task is to generate an essay based on these criteria. The user provided examples for each level with corresponding compositions. I should probably analyze those examples first to understand what each level entails.
+
+Looking at the VG example: It's very basic, uses simple words like "problems," "important" in a way that doesn't make sense together ("helped develop"). There are multiple grammar errors and poor structure, which makes comprehension hard.
+
+The LF example is even more chaotic. It has lots of spelling mistakes and run-on sentences. The ideas jump without explanation, making it almost impossible to follow what's being said about the benefits.
+
+EA combines topic relevance with awkward phrasing. Some sections are clear, others aren't, but overall, someone can figure out that it's talking about problem-solving benefits even if parts are unclear or poorly written.
+
+Now, I need to create a text for each level based on the given examples and my understanding of what each level entails.
+
+Let me start with the essay topic: "The Benefits of a Problem." So, I'll outline some positive aspects of problems. For example, solving problems can lead to personal growth, improve skills like critical thinking or creativity, provide challenges that enhance motivation, offer opportunities for learning from mistakes, and build resilience.
+
+For VG:
+I should use basic vocabulary and simple grammar but make it so the text doesn't clearly convey ideas due to errors.
+Something like: "Problem-solving is important. Helps develop skills. But many people struggle with them. It's hard work. Takes time." I need multiple grammatical mistakes here, unclear sentence structures, and repetition.
+
+For LF:
+This should be more chaotic. Maybe mixing up words incorrectly, run-on sentences, lack of coherence.
+Example: "Problem-solving is like a puzzle. It can help you think better. But sometimes it's confusing. You need to try harder." This has multiple errors in grammar, unclear explanations, and poor flow.
+
+For EA:
+This should be clear but with some awkward phrasing. Maybe some complex words used improperly or sentences that don't make complete sense.
+Example: "Problem-solving can really help you grow. It teaches important skills like critical thinking and creativity. Even if it's tough at times, solving problems gives a sense of accomplishment." This might have some inaccuracies but still conveys the main points.
+
+I need to ensure each level reflects its own criteria accurately. Now, I'll structure each essay accordingly.
+</think>
+
+### VG Example:
+"Problem-solving is important. Helps develop skills. But many people struggle with them. It's hard work. Takes time. You have to think carefully. Even if you make mistakes, it teaches you what to do next. Problems are everywhere. Trying to solve them is a big challenge."
+
+---
+
+### LF Example:
+"Problem-solving is like solving puzzles. It helps us be better thinkers. But sometimes it can be so confusing. You need to work harder. Sometimes the answers aren't clear. It takes time and patience. Problems come up all the time, but they're not always easy to solve. Solving them makes you feel good."
+
+---
+
+### EA Example:
+"Problem-solving is an important life skill. It helps us make decisions and find solutions when things go wrong. For example, if you get lost, problem-solving skills can help you find your way home. Problem-solving also teaches us to think critically and creatively. Even if it's hard at first, solving problems gives a sense of accomplishment."
+
+---
+
+Each response reflects the specified language level by incorporating the required features for VG (basic vocabulary with errors), LF (chaotic and inconsistent expressions), and EA ( Topic-relevant but with awkward phrasing).

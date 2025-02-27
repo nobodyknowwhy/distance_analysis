@@ -1,0 +1,19 @@
+def solution(n, template_, titles):
+    # Please write your code here
+    import re
+    list_bool = []
+    for x in titles:
+        pat = re.sub('{.*?}', '(.*?)', template_ + '$')
+        list_bool.append("True" if re.match(pat, x) else "False")
+
+    return ','.join(list_bool)
+
+if __name__ == "__main__":
+    #  You can add more test cases here
+    testTitles1 = ["adcdcefdfeffe", "adcdcefdfeff", "dcdcefdfeffe", "adcdcfe"]
+    testTitles2 = ["CLSomGhcQNvFuzENTAMLCqxBdj", "CLSomNvFuXTASzENTAMLCqxBdj", "CLSomFuXTASzExBdj", "CLSoQNvFuMLCqxBdj", "SovFuXTASzENTAMLCq", "mGhcQNvFuXTASzENTAMLCqx"]
+    testTitles3 = ["abcdefg", "abefg", "efg"]
+
+    print(solution(4, "ad{xyz}cdc{y}f{x}e", testTitles1) == "True,False,False,True" )
+    print(solution(6, "{xxx}h{cQ}N{vF}u{XTA}S{NTA}MLCq{yyy}", testTitles2) == "False,False,False,False,False,True" )
+    print(solution(3, "a{bdc}efg", testTitles3) == "True,True,False" )
