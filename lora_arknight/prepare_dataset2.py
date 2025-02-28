@@ -1,10 +1,10 @@
 import json
-import os
 import multiprocessing as mp
+import os
 import re
 
 
-def get_dataset_mp(file_path:str, dataset_all_list:list, type_format:str='alpaca'):
+def get_dataset_mp(file_path: str, dataset_all_list: list, type_format: str = 'alpaca'):
     last_npc = ''
     dataset_dict = {'instruction': '', 'last_role': '', 'input': '', 'output': ''}
     if type_format == 'alpaca':
@@ -103,14 +103,35 @@ def get_dataset_mp(file_path:str, dataset_all_list:list, type_format:str='alpaca
                         last_npc = npc_name
 
 
+def clean_empty_data(json_path: str, out_path: str, exclusions_list=['input']):
+    with open(json_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)  # 加载 JSON 数据
 
-def create_history_from_json(json_role_path:str):
+    filtered_data = []
+
+    for item in data:
+        mark_empty = False
+        for key in item:
+            if key in exclusions_list:
+                continue
+            if not item.get(key):
+                mark_empty = True
+                break
+
+        if not mark_empty:
+            filtered_data.append(item)
+
+    with open(out_path, 'w', encoding='utf-8') as file:
+        json.dump(filtered_data, file, ensure_ascii=False, indent=4)
+
+
+def create_history_from_json(json_role_path: str):
     with open(json_role_path, 'r', encoding='utf-8') as f:
         role_data = json.load(f)
 
     out_put_dataset_list = []
 
-    out_put_dataset = {'instruction':'', 'input':'', 'output': '', 'system': '', 'history':[]}
+    out_put_dataset = {'instruction': '', 'input': '', 'output': '', 'system': '', 'history': []}
 
     last_role = ''
     for conversations in role_data:
@@ -133,7 +154,7 @@ def create_history_from_json(json_role_path:str):
     return out_put_dataset_list
 
 
-def get_special_npc(npc_name:str, json_path, out_path):
+def get_special_npc(npc_name: str, json_path, out_path):
     with open(json_path, 'r', encoding='utf-8') as file:
         data = json.load(file)  # 加载 JSON 数据
 
@@ -147,14 +168,13 @@ def get_quality_lines(json_path, out_path):
     with open(json_path, 'r', encoding='utf-8') as file:
         data = json.load(file)  # 加载 JSON 数据
 
-
     filtered_data = [item for item in data if len(re.sub('[：，。！\.——？]*?', r'', item.get('output'))) > 8]
 
     with open(out_path, 'w', encoding='utf-8') as file:
         json.dump(filtered_data, file, ensure_ascii=False, indent=4)
 
 
-def main_run(run_mp:bool=True):
+def main_run(run_mp: bool = True):
     if run_mp:
         p_list = []
         with mp.Manager() as manager:
@@ -182,21 +202,20 @@ def main_run(run_mp:bool=True):
 
 
 if __name__ == '__main__':
-
     dataset_all_list = main_run(False)
 
-    with open(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff9-34.json", 'w', encoding='utf-8') as f:
+    with open(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff.json", 'w', encoding='utf-8') as f:
         json.dump(dataset_all_list, f, indent=4, ensure_ascii=False)
 
     # get_quality_lines(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all.json", r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_arknight.json")
 
     # get_special_npc('特蕾西娅', r"D:/gs/distance_analysis/lora_arknight/dataset/amiya2.json", r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_theresa.json")
 
-    # dataset_all_list = create_history_from_json(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff9-34.json")
-    #
-    # with open(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff9-34_history.json", 'w', encoding='utf-8') as f:
-    #     json.dump(dataset_all_list, f, indent=4, ensure_ascii=False)
+    dataset_all_list = create_history_from_json(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff.json")
 
+    with open(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff_history.json", 'w', encoding='utf-8') as f:
+        json.dump(dataset_all_list, f, indent=4, ensure_ascii=False)
 
-
-
+    clean_empty_data(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff_history.json",
+                     r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff_history_noempty.json",
+                     ['input'])
