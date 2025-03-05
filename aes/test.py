@@ -1,11 +1,15 @@
 import pandas as pd
-from pandasql import sqldf
-import datetime
 
-df = pd.read_csv(r'D:\gs\distance_analysis\aes\dataset\ELLIPSE-Corpus\ELLIPSE_Final_github_train.csv')
+df_g = pd.read_csv(r"D:\gs\distance_analysis\aes\out\test\aes_lw_dl_with_grammar.csv")
 
-prompt_list = ['Distance learning', 'Career commitment', 'Success and failure', 'Being busy', 'Positive attitudes']
+df_c = pd.read_csv(r"D:\gs\distance_analysis\aes\out\test\aes_lw_dl_with_coh.csv")
 
-query = "select * from df where prompt = 'Distance learning'"
+df_i = pd.read_csv(r"D:\gs\distance_analysis\aes\out\test\aes_lw_dl_with_vocab.csv")
 
-print()
+df_i['Grammar'] =  df_g['Grammar']
+df_i['Cohesion'] = df_c['Cohesion']
+
+print(df_i)
+print(df_i.columns)
+
+df_i.to_csv(r"D:\gs\distance_analysis\aes\out\test\aes_lw_dl_with_vcg_2025-3-5.csv")
