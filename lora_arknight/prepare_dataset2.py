@@ -204,18 +204,18 @@ def main_run(run_mp: bool = True):
 if __name__ == '__main__':
     dataset_all_list = main_run(False)
 
-    with open(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff.json", 'w', encoding='utf-8') as f:
+    with open(r"D:/gs/distance_analysis/lora_arknight/dataset/theresa_all_role_noshulff.json", 'w', encoding='utf-8') as f:
         json.dump(dataset_all_list, f, indent=4, ensure_ascii=False)
 
     # get_quality_lines(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all.json", r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_arknight.json")
 
     # get_special_npc('特蕾西娅', r"D:/gs/distance_analysis/lora_arknight/dataset/amiya2.json", r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_theresa.json")
 
-    dataset_all_list = create_history_from_json(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff.json")
-
-    with open(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff_history.json", 'w', encoding='utf-8') as f:
-        json.dump(dataset_all_list, f, indent=4, ensure_ascii=False)
-
-    clean_empty_data(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff_history.json",
-                     r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff_history_noempty.json",
-                     ['input'])
+    # dataset_all_list = create_history_from_json(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff.json")
+    #
+    # with open(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff_history.json", 'w', encoding='utf-8') as f:
+    #     json.dump(dataset_all_list, f, indent=4, ensure_ascii=False)
+    #
+    # clean_empty_data(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff_history.json",
+    #                  r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all_role_noshulff_history_noempty.json",
+    #                  ['input'])

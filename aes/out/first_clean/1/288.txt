@@ -1,0 +1,21 @@
+<think>
+Okay, so the user wants me to act as an English learner student who needs to modify an essay about "Distance Learning." They want it to look like something someone less advanced wrote, with lots of mistakes and fewer connectives. Plus, they can use more first-person stuff or examples.
+
+Looking at the original essay, I need to spot where there are syntax errors—like run-on sentences, missing punctuation, or incorrect tenses. Also, reduce the use of words like "because," "however," which help connect ideas smoothly. Instead, maybe just list points without linking them.
+
+The user mentioned using more first-person phrases, so I'll include "In my opinion" a couple more times. Adding examples could make it feel more real, like mentioning specific issues with internet connectivity or how students balance schedules.
+
+I should avoid starting the essay with "Distance learning." Maybe start with another sentence if possible, but since the prompt says not to, perhaps just skip that part and focus on the body.
+
+I need to keep each paragraph short because English learners often have shorter paragraphs. Also, correct any grammar issues like pluralization errors or missing articles. Make sure the essay flows in a way that's choppy without connectives, so it might read as more of a list than a coherent argument.
+
+Including specific examples would help make the points clearer and more relatable to someone learning English. Maybe talk about how students use tools they're familiar with for online classes or mention challenges they've faced personally.
+
+Finally, ensure that the essay doesn't have any advanced vocabulary unless necessary. The goal is to mimic a student's less polished writing rather than perfect grammar.
+</think>
+
+Distance learning has become an alternative way of getting education, especially because technology is so advanced these days. It lets students study from anywhere without going to school regularly. This kind of learning style is great for people who want more flexibility in their lives, like managing work or family while studying.
+
+But there are some problems with distance learning. Sometimes the internet doesn’t work well, which makes it hard to take classes or hand in homework on time. Also, not being able to see teachers and classmates face-to-face can make things harder when you need to talk about assignments or ask questions.
+
+Still, I think distance learning is good for some people. It lets students focus on their work without worrying about other students in a regular classroom. This independence can help them study better because they aren’t distracted by who’s next to them. I believe it’s a special benefit that helps everyone learn well.
