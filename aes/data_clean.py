@@ -7,6 +7,8 @@ import pandas as pd
 def remove_think_tag(file_path:str, score:int)->list:
     with open(file_path, 'r', encoding='utf-8') as f:
         a = f.read()
+
+
     return [re.sub(r'<think>.*?</think>|\*\*.*?\*\*', '', a, flags=re.DOTALL).strip(), score]
 
 
@@ -18,14 +20,17 @@ def run_remove_tag_mp(root_name:str, file_name_list:list, share_list:list):
         with open(file_path, 'r', encoding='utf-8') as f:
             a = f.read()
 
-        share_list.append([re.sub(r'<think>.*?</think>|\*\*.*?\*\*', '', a, flags=re.DOTALL).strip(), score])
+        if '---' in a:
+            share_list.append([a.split('---')[1].strip(), score])
+        else:
+            share_list.append([re.sub(r'<think>.*?</think>|\*\*.*?\*\*', '', a, flags=re.DOTALL).strip(), score])
 
 
 if __name__ == '__main__':
     with mp.Manager() as manager:
         share_list = manager.list([])
         p_list = []
-        for root_name, dir_name_list, file_name_list in os.walk(r"D:\gs\distance_analysis\aes\out\Distance learning"):
+        for root_name, dir_name_list, file_name_list in os.walk(r"D:\gs\distance_analysis\aes\out\first_clean"):
             P = mp.Process(target=run_remove_tag_mp, args=(root_name, file_name_list, share_list))
             p_list.append(P)
             P.start()
@@ -37,6 +42,6 @@ if __name__ == '__main__':
 
         print(df)
 
-        df.to_csv(r"D:\gs\distance_analysis\aes\out\test\out1.csv", index=False)
+        df.to_csv(r"D:\gs\distance_analysis\aes\out\test\aes_g_c_v_1clean.csv", index=False)
 
 

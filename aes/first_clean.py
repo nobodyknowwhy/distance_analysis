@@ -83,7 +83,7 @@ def main_run_gram():
 
     a, b, c = popt
 
-    df_with_vocabulary = pd.read_csv(r"D:\gs\distance_analysis\aes\out\test\aes_lw_2025-3-3.csv")
+    df_with_vocabulary = pd.read_csv(r"D:\gs\distance_analysis\aes\out\first_clean\test\aes_lw_dl_with_vocab_1c")
 
     df_with_vocabulary = df_with_vocabulary.dropna(ignore_index=True)
 
@@ -106,7 +106,7 @@ def main_run_vab():
 
     a, b, c = popt
 
-    df_with_vocabulary = pd.read_csv(r"D:\gs\distance_analysis\aes\out\test\aes_lw_2025-3-3.csv")
+    df_with_vocabulary = pd.read_csv(r"D:\gs\distance_analysis\aes\out\test\aes_g_c_v_1clean.csv")
 
     df_with_vocabulary = df_with_vocabulary.dropna(ignore_index=True)
 
@@ -118,5 +118,4 @@ def main_run_vab():
 
 
 if __name__ == '__main__':
-    dl_sample = pd.read_csv(r"D:\gs\distance_analysis\aes\dataset\ELLIPSE-Corpus\dl_sample.csv")
-    print(dl_sample)
+    main_run_gram()

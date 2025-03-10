@@ -11,3 +11,4 @@ seg/
 .venv/
 *.zip/
 *.json*
+*.txt*

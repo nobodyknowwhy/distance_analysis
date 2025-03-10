@@ -125,7 +125,7 @@ print("***********************")
 print(func_3wei((0.02, 0.3), a, b, c))
 print(func_3wei((0.07, 0.02), a, b, c))
 
-df_tar = pd.read_csv(r"D:\gs\distance_analysis\aes\out\test\aes_lw_2025-3-3.csv")
+df_tar = pd.read_csv(r"D:\gs\distance_analysis\aes\out\aes_lw_dl_with_grammar.csv")
 
 
 def add_coh(text:str, a, b, c, model_fun)->int:
@@ -150,4 +150,4 @@ df_tar['Cohesion'] = df_tar['text'].progress_apply(lambda x:add_coh(x, a, b, c, 
 
 print(df_tar)
 
-df_tar.to_csv(r"D:\gs\distance_analysis\aes\out\test\aes_lw_dl_with_coh.csv")
+df_tar.to_csv(r"D:\gs\distance_analysis\aes\out\aes_lw_dl_with_coh_gra_vab.csv", index=False)

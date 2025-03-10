@@ -1,0 +1,9 @@
+You will act as an English learner.  Now you need to revise the given article to match the corresponding score of the article. There are a total of 5 scores (1-5) for the given article.  Specifically, You need to modify some words or sentences according to the requirement:
+
+When the score is 1, each sentence should add at least one or more low-level grammar or spelling mistakes.
+When the score is 2, each sentence should add low-level grammar, spelling mistakes, or some advanced grammar mistakes
+When the score is 3, at most two consecutive sentences do not have low-level grammar or spelling mistakes, while the rest need to add grammar or spelling mistakes.
+When the score is 4, there is still a need to add grammar mistakes, and the article should have a few advanced grammar mistakes.
+When the score is 5, the article basically has no grammar mistakes, but a few advanced grammar mistakes can be appropriately added.
+
+Remember, you can only modify spelling and grammar mistakes, do not change the original main idea or the sentence pattern. Please generate the text of the article within the tag '---' or directly generate the text after thinking.

@@ -36,7 +36,7 @@ headers = {
     "Content-Type": "application/json"}
 
 
-def generate_completion(prompt, model="deepseek-r1", system_prompt=None):
+def generate_completion(prompt, model="deepseek-r1:14b", system_prompt=None):
     import requests
     url = f"{base_url}/generate"
     data = {
@@ -135,6 +135,30 @@ def generate_text_first_clean():
             file.write(completion)
 
 
+def generate_text_second_clean():
+
+    df_dl_ori = pd.read_csv(r"D:\gs\distance_analysis\aes\out\first_clean\test\aes_lw_dl_with_vocab_1c.csv")
+
+    df_dl_ori = df_dl_ori.dropna(ignore_index=True)
+
+    df_dl_full = df_dl_ori.sample(frac=1, random_state=42).reset_index(drop=True)
+
+    with open(r"D:\gs\distance_analysis\aes\prompt_2clean2.txt", "r") as f:
+        prompt_enhance = f.read()
+
+    for index, row in tqdm(df_dl_full.iterrows(), desc="second cleaning"):
+        file_name = f"D:/gs/distance_analysis/aes/out/second_clean/{row['score']}/{index}.txt"
+        if os.path.exists(file_name):
+            continue
+        os.makedirs(os.path.dirname(file_name), exist_ok=True)
+
+        prompt_enhance_p = prompt_enhance + f'\nNow, you will revise the article with the score {row["score"]}:\n {row["text"]}'
+
+        completion = generate_completion(prompt=prompt_enhance_p)
+        with open(file_name, "w", encoding="utf-8") as file:
+            file.write(completion)
+
 if __name__ == '__main__':
     # generate_text(prompt_list, score_list, standard_list, 20000)
-    generate_text_first_clean()
+    # generate_text_first_clean()
+    generate_text_second_clean()
