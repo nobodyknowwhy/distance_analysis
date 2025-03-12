@@ -30,7 +30,7 @@ if __name__ == '__main__':
     with mp.Manager() as manager:
         share_list = manager.list([])
         p_list = []
-        for root_name, dir_name_list, file_name_list in os.walk(r"D:\gs\distance_analysis\aes\out\first_clean"):
+        for root_name, dir_name_list, file_name_list in os.walk(r"D:\gs\distance_analysis\aes\out\second_clean"):
             P = mp.Process(target=run_remove_tag_mp, args=(root_name, file_name_list, share_list))
             p_list.append(P)
             P.start()
@@ -42,6 +42,6 @@ if __name__ == '__main__':
 
         print(df)
 
-        df.to_csv(r"D:\gs\distance_analysis\aes\out\test\aes_g_c_v_1clean.csv", index=False)
+        df.to_csv(r"D:\gs\distance_analysis\aes\out\test\aes_g_c_v_2clean2.csv", index=False)
 
 
