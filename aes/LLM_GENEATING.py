@@ -219,4 +219,4 @@ def generated_text_third_clean_all():
 if __name__ == '__main__':
     # generate_text(prompt_list, score_list, standard_list, 20000)
     # generate_text_first_clean()
-    generated_text_third_clean_all()
+    generate_text_second_clean()

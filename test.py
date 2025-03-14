@@ -1,12 +1,79 @@
 import os
+import traceback
 
-count_jpg = 0
-count_json = 0
-for root_name, dir_list, file_list in os.walk(r"D:\hqxkj\PycharmProjects\01code\data_processing\1744597038608265217\2025"):
-    for file_name in file_list:
-        if file_name.endswith('.jpg'):
-            count_jpg += 1
-        else:
-            count_json += 1
+import mysql.connector
 
-print(count_jpg, count_json)
+class ArkNight:
+
+    def __init__(self, host, port, user_name, password, db_name):
+        self.host = host
+        self.port = port
+        self.user_name = user_name
+        self.password = password
+        self.db_name = db_name
+        self.conn = None
+
+    def connect_to_mysql(self):
+        try:
+            self.conn = mysql.connector.connect(
+                host=self.host,
+                port=self.port,
+                user=self.user_name,
+                password=self.password,
+                database=self.db_name,
+            )
+
+        except Exception as e:
+            return False, traceback.format_exc()
+
+        return True, ''
+
+    def insert_into_mysql(self, path:str):
+
+        cursor = self.conn.cursor()
+
+        for root, dir_list, file_list in os.walk(path):
+
+            for file_name in file_list:
+
+                if file_name.endswith('.txt'):
+
+                    file_path = os.path.join(root, file_name)
+                    try:
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            items = f.readlines()
+
+                        for item in items:
+                            if item.startswith('"'):
+                                operator_name, line = item.split(':')[0].replace('"',''), item.split(':')[1]
+
+                                query = """INSERT INTO operator_lines (operator_name, line) VALUES (%s, %s)"""
+
+                                tuple_insert = (operator_name, line)
+
+                                cursor.execute(query, tuple_insert)
+
+                    except Exception as e:
+
+                        with open(file_path, 'r', encoding='gbk') as f:
+                            items = f.readlines()
+
+                        for item in items:
+                            if item.startswith('"'):
+                                operator_name, line = item.split(':')[0].replace('"',''), item.split(':')[1]
+
+                                query = """INSERT INTO operator_lines (operator_name, line) VALUES (%s, %s)"""
+
+                                tuple_insert = (operator_name, line)
+
+                                cursor.execute(query, tuple_insert)
+
+        self.conn.commit()
+
+        cursor.close()
+        self.conn.close()
+
+if __name__ == '__main__':
+    ark = ArkNight("127.0.0.1", 3306, "root", "Zz15987324860", "arknight")
+    ark.connect_to_mysql()
+    ark.insert_into_mysql(r"D:\me\主线")
