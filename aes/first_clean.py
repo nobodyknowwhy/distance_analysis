@@ -108,7 +108,7 @@ def main_run_vab():
 
     a, b, c = popt
 
-    df_with_vocabulary = pd.read_csv(r"D:\gs\distance_analysis\aes\out\test\aes_g_c_v_1clean.csv")
+    df_with_vocabulary = pd.read_csv(r"D:\gs\distance_analysis\aes\out\test\aes_g_c_v_1clean_c.csv")
 
     df_with_vocabulary = df_with_vocabulary.dropna(ignore_index=True)
 
@@ -116,8 +116,8 @@ def main_run_vab():
 
     print(df_with_vocabulary)
 
-    df_with_vocabulary.to_csv(r"D:\gs\distance_analysis\aes\out\aes_lw_dl_with_vocab.csv", index=False)
+    df_with_vocabulary.to_csv(r"D:\gs\distance_analysis\aes\out\test\aes_g_c_v_1clean_c_with_vocab.csv", index=False)
 
 
 if __name__ == '__main__':
-    main_run_gram()
+    main_run_vab()

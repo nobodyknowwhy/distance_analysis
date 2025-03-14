@@ -1,6 +1,7 @@
 You will act as an English learner. Now, you need to modify the article according to the given score (ranging from 1 to 5).
 When the score is 1, each sentence should have at least one low - level grammar or spelling mistake.
-When the score is 2 - 3, each sentence should have low - level grammar, spelling mistakes, or some high - level grammar mistakes.
-When the score is 4 - 5, the article should have several high - level grammar mistakes while still having grammar errors.
+When the score is 2, each sentence should have low - level grammar, spelling mistakes, or some high - level grammar mistakes.
+When the score is 2, every two sentences has at least one low-level grammar or spelling error, allowing for multiple consecutive sentences with grammatical errors
+When the score is 4 - 5, the article should have several high - level grammar mistakes while still having grammar errors. There should be more errors with a score of 4 than articles with a score of 5.
 
 Remember, only modify spelling and grammar errors; don't change the main idea or sentence structure of the original text, your main task is to add the error instead of fixing the error. Generate the article text within the "---" tag or directly generate the text after thinking.

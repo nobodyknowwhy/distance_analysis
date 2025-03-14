@@ -1,17 +1,13 @@
+import os
 from datetime import datetime
+from loguru import logger
 
 import pandas as pd
-
-from base import score_list, standard_list, prompt_list
-import os
 from tqdm import tqdm
-
-import language_tool_python
 
 
 # df = pd.read_csv(r'D:\gs\distance_analysis\aes\dataset\ELLIPSE-Corpus\sample_train.csv')
-
-def calculate_grammar_error(text: str) -> int:
+def calculate_grammar_error(text: str, tool) -> int:
     """
     这个是一个检查语法的函数，返回的是这一篇文章有多少语法错误，实际上文章越长，语法错误就有可能越多，但是这并不意味着文章越短评分就应该越高，所以
     可能需要考虑返回一个比例值：（有语法错误的句子）/（总句子）所得到的结果。但是这样实际上也会有些问题，因为如果一个句子出现了多处语法错误，证明
@@ -20,7 +16,7 @@ def calculate_grammar_error(text: str) -> int:
     :param text: 输入的文本
     :return: 返回文章语法错误的数量
     """
-    tool = language_tool_python.LanguageTool('en-US')  # 对于英语，使用 'en-US'
+    # 对于英语，使用 'en-US'
     try:
         matches = tool.check(text)
 
@@ -71,7 +67,6 @@ def generate_text(prompt_list: list, score_list: list, standard_list: list, num_
 
 
 def generate_text_first_clean():
-
     df_dl_ori = pd.read_csv(r"D:\gs\distance_analysis\aes\out\test\aes_lw_dl_with_vcg_2025-3-5.csv")
 
     df_dl_ori = df_dl_ori.dropna(ignore_index=True)
@@ -98,7 +93,6 @@ def generate_text_first_clean():
             elif int(row['Vocabulary']) - int(row['score']) > 2:
                 v_prompt = """reduce much words for the essay or use more single words,"""
 
-
         if int(row['Grammar']) < int(row['score']):
             if int(row['score']) - int(row['Grammar']) == 2:
                 g_prompt = """reduce some grammar errors, but make sure they still exist,"""
@@ -109,7 +103,6 @@ def generate_text_first_clean():
                 g_prompt = """add more syntax errors for the essay,"""
             elif int(row['Grammar']) - int(row['score']) > 2:
                 g_prompt = """add lots of syntax errors for the essay,"""
-
 
         if int(row['Cohesion']) < int(row['score']):
             if int(row['score']) - int(row['Cohesion']) == 2:
@@ -136,7 +129,6 @@ def generate_text_first_clean():
 
 
 def generate_text_second_clean():
-
     df_dl_ori = pd.read_csv(r"D:\gs\distance_analysis\aes\out\first_clean\test\aes_lw_dl_with_vocab_1c.csv")
 
     df_dl_ori = df_dl_ori.dropna(ignore_index=True)
@@ -158,7 +150,73 @@ def generate_text_second_clean():
         with open(file_name, "w", encoding="utf-8") as file:
             file.write(completion)
 
+
+def generated_text_third_clean_all():
+    import numpy as np
+    import pandas as pd
+    from tqdm import tqdm
+    import language_tool_python
+    tool = language_tool_python.LanguageTool('en-US')
+
+    def model_func_exp(x, a, b, c):
+        return a * np.exp(-b * x) + c
+
+    def check_grammar_errors(text):
+        matches = tool.check(text)
+        error_count = len(matches)
+        tool.close()  # 关闭工具
+        return error_count
+
+    def add_grammar(text: str, a, b, c, model_fun) -> int:
+        div = check_grammar_errors(text)
+
+        value = model_fun(div, a, b, c)
+
+        if value < 1:
+            value = 1
+        if value > 5:
+            value = 5
+
+        return int(round(value))
+
+    a, b, c = [4.6275004, 0.07705615, 1.12537098]
+
+    df_dl_ori = pd.read_csv(r"D:\gs\distance_analysis\aes\out\test\aes_g_c_v_1clean_cv.csv")
+
+    df_dl_ori = df_dl_ori.dropna(ignore_index=True)
+
+    df_dl_full = df_dl_ori.sample(frac=1, random_state=42).reset_index(drop=True)
+
+    with open(r"D:\gs\distance_analysis\aes\prompt_2clean2.txt", "r") as f:
+        prompt_enhance = f.read()
+
+    for index, row in tqdm(df_dl_full.iterrows(), desc="third cleaning"):
+        file_name = f"D:/gs/distance_analysis/aes/out/third_clean/{row['score']}/{index}.txt"
+        if os.path.exists(file_name):
+            continue
+        os.makedirs(os.path.dirname(file_name), exist_ok=True)
+
+        prompt_enhance_p = prompt_enhance + f'\nNow, you will revise the article with the score {row["score"]}:\n {row["text"]}'
+
+        count_generate = 2
+        while True:
+
+            completion = generate_completion(prompt=prompt_enhance_p)
+
+            g_score = add_grammar(completion, a, b, c, model_func_exp)
+
+            logger.info(f"true_score:{row['score']}, g_score:{g_score}, count_generate:{3-count_generate}")
+
+            if abs(row['score'] - g_score) < 2:
+                break
+
+            count_generate -= 1
+
+        with open(file_name, "w", encoding="utf-8") as file:
+            file.write(completion)
+
+
 if __name__ == '__main__':
     # generate_text(prompt_list, score_list, standard_list, 20000)
     # generate_text_first_clean()
-    generate_text_second_clean()
+    generated_text_third_clean_all()

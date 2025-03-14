@@ -114,6 +114,8 @@ popt, pcov = curve_fit(func_3wei, (res['new_coh'].values, res['new_coh2'].values
 
 a, b, c = popt
 
+print(a, b, c)
+
 test_list = [(0.01*x, (0.1+0.1*x)) for x in range(8)]
 
 print(f"{a}, {b}, {c}")
@@ -125,7 +127,7 @@ print("***********************")
 print(func_3wei((0.02, 0.3), a, b, c))
 print(func_3wei((0.07, 0.02), a, b, c))
 
-df_tar = pd.read_csv(r"D:\gs\distance_analysis\aes\out\aes_lw_dl_with_grammar.csv")
+df_tar = pd.read_csv(r"D:\gs\distance_analysis\aes\out\test\aes_g_c_v_1clean.csv")
 
 
 def add_coh(text:str, a, b, c, model_fun)->int:
@@ -150,4 +152,4 @@ df_tar['Cohesion'] = df_tar['text'].progress_apply(lambda x:add_coh(x, a, b, c, 
 
 print(df_tar)
 
-df_tar.to_csv(r"D:\gs\distance_analysis\aes\out\aes_lw_dl_with_coh_gra_vab.csv", index=False)
+df_tar.to_csv(r"D:\gs\distance_analysis\aes\out\test\aes_g_c_v_1clean_with_coh.csv", index=False)
