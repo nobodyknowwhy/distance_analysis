@@ -4,14 +4,13 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from scipy.optimize import curve_fit
 from sympy import floor
 
-from aes.first_clean import model_func_line, model_func_2ci
-
 # 定义参考词和过渡词列表
-REFERENCE_WORDS = ["this", "that", "it", "these", "those", "here", "there", "or", "neither", "else", "but", "also", "then", "although"]
+REFERENCE_WORDS = ["else", "but", "also", "then", "although", "thus", "therefore", "therefore", "however", "furthermore", "moreover", "additionally",
+    "consequently", "similarly", "meanwhile"]
 TRANSITIONAL_WORDS = [
-    "however", "furthermore", "moreover", "additionally", "therefore", "thus",
-    "consequently", "on the other hand", "in contrast", "similarly", "for example",
-    "in my opinion", "meanwhile", "ont only", "in addition", "therefore", "for instance"
+   "on the other hand", "in contrast""ont only", "in addition", "for instance", "who", "whom", "whose",
+    "which", "when", "whether", "what", "where", "how", "why", "that",
+    "while", "since", "unless", "in my opinion", "for example", "but also"
 ]
 
 
@@ -48,6 +47,7 @@ def analyze_connectors(text):
 
     return reference_count, transitional_count, total_words
 
+
 def analyze_connectors_sent(text):
     sentences = [sent.lower() for sent in sent_tokenize(text)]
 
@@ -57,13 +57,25 @@ def analyze_connectors_sent(text):
 
         matches = re.findall(pattern, sent)
 
-        advance_connection += len(matches)
+        if matches:
+            advance_connection += 1
 
-    for sent in sentences:
-        pattern = r'^[a-zA-Z]+ing'
-        matches = re.findall(pattern, sent)
+        else:
+            pattern = r'^[a-zA-Z]+ing'
+            matches = re.findall(pattern, sent)
+            if matches:
+                advance_connection += 1
+            else:
+                for word in TRANSITIONAL_WORDS:
+                    if word in sent:
+                        advance_connection += 1
+                        break
+    # for sent in sentences:
+    #     for phrase in TRANSITIONAL_WORDS:
+    #         matches = re.findall(phrase, sent)
+    #
+    #         advance_connection += len(matches)
 
-        advance_connection += len(matches)
 
     return advance_connection, len(sentences)
 
@@ -72,11 +84,13 @@ def evaluate_text_organization(text):
     paragraphs, sentences = preprocess_text(text)
     reference_count, transitional_count, total_words = analyze_connectors(text)
 
-    connector_ratio = (reference_count + transitional_count) / total_words
+    # connector_ratio = (reference_count + transitional_count) / total_words
+    connector_ratio = (reference_count) / total_words
 
     score = connector_ratio
 
     return score
+
 
 def evaluate_text_organization_by_sent(text):
     advance_connection, total_sentence = analyze_connectors_sent(text)
@@ -84,6 +98,7 @@ def evaluate_text_organization_by_sent(text):
     score = connector_sent_ratio
 
     return score
+
 
 import pandas as pd
 from pandasql import sqldf
@@ -103,11 +118,9 @@ res['Cohesion'] = res['Cohesion'].apply(lambda x: int(floor(x)))
 print(res)
 
 
-
 def func_3wei(xy, a, b, c):
     x, y = xy
     return a * x + b * y + c
-
 
 
 popt, pcov = curve_fit(func_3wei, (res['new_coh'].values, res['new_coh2'].values), res['Cohesion'].values)
@@ -116,7 +129,7 @@ a, b, c = popt
 
 print(a, b, c)
 
-test_list = [(0.01*x, (0.1+0.1*x)) for x in range(8)]
+test_list = [(0.01 * x, (0.1 + 0.1 * x)) for x in range(8)]
 
 print(f"{a}, {b}, {c}")
 
@@ -127,10 +140,10 @@ print("***********************")
 print(func_3wei((0.02, 0.3), a, b, c))
 print(func_3wei((0.07, 0.02), a, b, c))
 
-df_tar = pd.read_csv(r"D:\gs\distance_analysis\aes\out\test\aes_g_c_v_1clean.csv")
+df_tar = pd.read_csv(r"D:\gs\distance_analysis\aes\out\second_clean\test\aes_g_c_v_2clean_full_vg.csv")
 
 
-def add_coh(text:str, a, b, c, model_fun)->int:
+def add_coh(text: str, a, b, c, model_fun) -> int:
     div1 = evaluate_text_organization(text)
 
     div2 = evaluate_text_organization_by_sent(text)
@@ -144,12 +157,13 @@ def add_coh(text:str, a, b, c, model_fun)->int:
 
     return int(round(value))
 
+
 df_tar = df_tar.dropna(ignore_index=True)
 from tqdm import tqdm
 
 tqdm.pandas(desc="进度")
-df_tar['Cohesion'] = df_tar['text'].progress_apply(lambda x:add_coh(x, a, b, c, func_3wei))
+df_tar['Cohesion'] = df_tar['text'].progress_apply(lambda x: add_coh(x, a, b, c, func_3wei))
 
 print(df_tar)
 
-df_tar.to_csv(r"D:\gs\distance_analysis\aes\out\test\aes_g_c_v_1clean_with_coh.csv", index=False)
+df_tar.to_csv(r"D:\gs\distance_analysis\aes\out\second_clean\test\aes_g_c_v_2clean_full_vgc.csv", index=False)

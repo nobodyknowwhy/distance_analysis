@@ -85,7 +85,7 @@ def main_run_gram():
 
     print(popt)
 
-    df_with_vocabulary = pd.read_csv(r"D:\gs\distance_analysis\aes\out\test\aes_g_c_v_2clean2.csv")
+    df_with_vocabulary = pd.read_csv(r"D:\gs\distance_analysis\aes\out\second_clean\test\aes_g_c_v_2clean_full_v.csv")
 
     df_with_vocabulary = df_with_vocabulary.dropna(ignore_index=True)
 
@@ -93,7 +93,7 @@ def main_run_gram():
 
     print(df_with_vocabulary)
 
-    df_with_vocabulary.to_csv(r"D:\gs\distance_analysis\aes\out\test\aes_g_c_v_2clean2_gram.csv", index=False)
+    df_with_vocabulary.to_csv(r"D:\gs\distance_analysis\aes\out\second_clean\test\aes_g_c_v_2clean_full_vg.csv", index=False)
 
 
 def main_run_vab():
@@ -108,7 +108,7 @@ def main_run_vab():
 
     a, b, c = popt
 
-    df_with_vocabulary = pd.read_csv(r"D:\gs\distance_analysis\aes\out\test\aes_g_c_v_1clean_c.csv")
+    df_with_vocabulary = pd.read_csv(r"D:\gs\distance_analysis\aes\out\second_clean\test\aes_g_c_v_2clean_full.csv")
 
     df_with_vocabulary = df_with_vocabulary.dropna(ignore_index=True)
 
@@ -116,8 +116,8 @@ def main_run_vab():
 
     print(df_with_vocabulary)
 
-    df_with_vocabulary.to_csv(r"D:\gs\distance_analysis\aes\out\test\aes_g_c_v_1clean_c_with_vocab.csv", index=False)
+    df_with_vocabulary.to_csv(r"D:\gs\distance_analysis\aes\out\second_clean\test\aes_g_c_v_2clean_full_v.csv", index=False)
 
 
 if __name__ == '__main__':
-    main_run_vab()
+    main_run_gram()
