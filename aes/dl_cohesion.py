@@ -1,16 +1,16 @@
 import re
 
+import numpy as np
+from matplotlib import pyplot as plt
 from nltk.tokenize import sent_tokenize, word_tokenize
 from scipy.optimize import curve_fit
 from sympy import floor
 
 # 定义参考词和过渡词列表
 REFERENCE_WORDS = ["else", "but", "also", "then", "although", "thus", "therefore", "therefore", "however", "furthermore", "moreover", "additionally",
-    "consequently", "similarly", "meanwhile"]
+    "consequently", "similarly", "meanwhile", "on the other hand", "in contrast", "not only", "in addition", "for instance", "while", "since", "unless", "in my opinion", "for example", "but also"]
 TRANSITIONAL_WORDS = [
-   "on the other hand", "in contrast""ont only", "in addition", "for instance", "who", "whom", "whose",
-    "which", "when", "whether", "what", "where", "how", "why", "that",
-    "while", "since", "unless", "in my opinion", "for example", "but also"
+   "who", "whom", "whose","which", "when", "whether", "what", "where", "how", "why", "that"
 ]
 
 
@@ -29,23 +29,10 @@ def analyze_connectors(text):
     words = [word.lower() for word in word_tokenize(text)]
 
     reference_count = sum(1 for word in words if word in REFERENCE_WORDS)
-    transitional_count = 0
-    for phrase in TRANSITIONAL_WORDS:
-        phrase_list = phrase.split()
-
-        if len(phrase_list) == 1:
-
-            matches = re.findall(phrase, text.lower())
-            transitional_count += len(matches)
-
-        else:
-            pattern = r'\s'.join(phrase_list)
-            matches = re.findall(pattern, text.lower())
-            transitional_count += len(matches)
 
     total_words = len(words)
 
-    return reference_count, transitional_count, total_words
+    return reference_count, total_words
 
 
 def analyze_connectors_sent(text):
@@ -53,7 +40,7 @@ def analyze_connectors_sent(text):
 
     advance_connection = 0
     for sent in sentences:
-        pattern = r',\s[a-zA-Z]+ing'
+        pattern = r'(,\s[a-zA-Z]+ing)|(^[a-zA-Z]+ing)'
 
         matches = re.findall(pattern, sent)
 
@@ -61,30 +48,18 @@ def analyze_connectors_sent(text):
             advance_connection += 1
 
         else:
-            pattern = r'^[a-zA-Z]+ing'
-            matches = re.findall(pattern, sent)
-            if matches:
-                advance_connection += 1
-            else:
-                for word in TRANSITIONAL_WORDS:
-                    if word in sent:
-                        advance_connection += 1
-                        break
-    # for sent in sentences:
-    #     for phrase in TRANSITIONAL_WORDS:
-    #         matches = re.findall(phrase, sent)
-    #
-    #         advance_connection += len(matches)
+            for word in TRANSITIONAL_WORDS:
+                if word in sent:
+                    advance_connection += 1
+                    break
 
 
     return advance_connection, len(sentences)
 
 
 def evaluate_text_organization(text):
-    paragraphs, sentences = preprocess_text(text)
-    reference_count, transitional_count, total_words = analyze_connectors(text)
+    reference_count, total_words = analyze_connectors(text)
 
-    # connector_ratio = (reference_count + transitional_count) / total_words
     connector_ratio = (reference_count) / total_words
 
     score = connector_ratio
@@ -166,4 +141,32 @@ df_tar['Cohesion'] = df_tar['text'].progress_apply(lambda x: add_coh(x, a, b, c,
 
 print(df_tar)
 
-df_tar.to_csv(r"D:\gs\distance_analysis\aes\out\second_clean\test\aes_g_c_v_2clean_full_vgc.csv", index=False)
+# df_tar.to_csv(r"D:\gs\distance_analysis\aes\out\second_clean\test\aes_g_c_v_2clean_full_vgc.csv", index=False)
+
+plt.rcParams['font.sans-serif'] = ['SimHei']  # 指定中文字体为黑体
+plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+
+x = np.linspace(res['new_coh'].min(), res['new_coh'].max(), 100)
+y = np.linspace(res['new_coh2'].min(), res['new_coh2'].max(), 100)
+X, Y = np.meshgrid(x, y)
+
+# 绘制图形
+fig = plt.figure(figsize=(10, 7))
+ax = fig.add_subplot(111, projection='3d')
+
+# 绘制原始数据点
+ax.scatter(res['new_coh'], res['new_coh2'], res['Cohesion'], c='b', marker='o', label='源数据')
+
+# 绘制拟合曲面
+ax.plot_surface(X, Y, func_3wei((X,Y),a, b, c)
+                , cmap='viridis', alpha=0.5, label='拟合平面')
+
+# 添加标签和标题
+ax.set_xlabel('连贯词，短语使用频率')
+ax.set_ylabel('连贯句使用频率')
+ax.set_zlabel('文章句法使用，连贯度得分')
+ax.set_title('3D拟合平面')
+
+ax.legend()
+
+plt.show()

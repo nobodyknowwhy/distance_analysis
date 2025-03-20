@@ -1,27 +1,36 @@
+import language_tool_python
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from pandasql import sqldf
 from scipy.optimize import curve_fit
 from tqdm import tqdm
-import language_tool_python
+
+plt.rcParams['font.sans-serif'] = ['SimHei']  # 指定中文字体为黑体
+plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
 
 tqdm.pandas(desc="进度")
 tool = language_tool_python.LanguageTool('en-US')
 
+
 def model_func_exp(x, a, b, c):
     return a * np.exp(-b * x) + c
+
 
 def model_func_line(x, k, b):
     return k * x + b
 
+
 def model_func_2ci(x, a, b, c):
     return a * x * x + b * x + c
+
 
 def check_grammar_errors(text):
     matches = tool.check(text)
     error_count = len(matches)
     tool.close()  # 关闭工具
     return error_count
+
 
 def calculate_diversity(text: str) -> float:
     """
@@ -41,12 +50,12 @@ def calculate_diversity(text: str) -> float:
 
     unique_words = sum([1 if len(word) < 8 else 1.5 for word in set(filtered_tokens)])
 
-    lexical_diversity = unique_words / len(tokens)
+    lexical_diversity = unique_words / sum([1 if len(word) < 8 else 1.5 for word in set(filtered_tokens)])
 
     return lexical_diversity
 
 
-def add_vocab(text:str, a, b, c, model_fun)->int:
+def add_vocab(text: str, a, b, c, model_fun) -> int:
     div = calculate_diversity(text)
 
     value = model_fun(div, a, b, c)
@@ -58,7 +67,8 @@ def add_vocab(text:str, a, b, c, model_fun)->int:
 
     return int(round(value))
 
-def add_grammar(text:str, a, b, c, model_fun)->int:
+
+def add_grammar(text: str, a, b, c, model_fun) -> int:
     div = check_grammar_errors(text)
 
     value = model_fun(div, a, b, c)
@@ -89,11 +99,13 @@ def main_run_gram():
 
     df_with_vocabulary = df_with_vocabulary.dropna(ignore_index=True)
 
-    df_with_vocabulary['Grammar'] = df_with_vocabulary['text'].progress_apply(lambda x: add_grammar(x, a, b, c, model_func_exp))
+    df_with_vocabulary['Grammar'] = df_with_vocabulary['text'].progress_apply(
+        lambda x: add_grammar(x, a, b, c, model_func_exp))
 
     print(df_with_vocabulary)
 
-    df_with_vocabulary.to_csv(r"D:\gs\distance_analysis\aes\out\second_clean\test\aes_g_c_v_2clean_full_vg.csv", index=False)
+    df_with_vocabulary.to_csv(r"D:\gs\distance_analysis\aes\out\second_clean\test\aes_g_c_v_2clean_full_vg.csv",
+                              index=False)
 
 
 def main_run_vab():
@@ -112,12 +124,90 @@ def main_run_vab():
 
     df_with_vocabulary = df_with_vocabulary.dropna(ignore_index=True)
 
-    df_with_vocabulary['Vocabulary'] = df_with_vocabulary['text'].progress_apply(lambda x: add_vocab(x, a, b, c, model_func_2ci))
+    df_with_vocabulary['Vocabulary'] = df_with_vocabulary['text'].progress_apply(
+        lambda x: add_vocab(x, a, b, c, model_func_2ci))
 
     print(df_with_vocabulary)
 
-    df_with_vocabulary.to_csv(r"D:\gs\distance_analysis\aes\out\second_clean\test\aes_g_c_v_2clean_full_v.csv", index=False)
+    df_with_vocabulary.to_csv(r"D:\gs\distance_analysis\aes\out\second_clean\test\aes_g_c_v_2clean_full_v.csv",
+                              index=False)
+
+
+def plot_vab():
+    # 读取数据
+    dl_sample = pd.read_csv(r"D:\gs\distance_analysis\aes\dataset\ELLIPSE-Corpus\dl_sample.csv")
+
+    # 计算 vocabulary_p
+    dl_sample['vocabulary_p'] = dl_sample['full_text'].progress_apply(lambda x: calculate_diversity(x))
+
+    # 准备数据
+    X = dl_sample['vocabulary_p'].values
+    y = dl_sample['Vocabulary'].values
+
+    # 拟合曲线
+    popt, pcov = curve_fit(model_func_2ci, X, y)
+    a, b, c = popt
+
+    # 生成拟合曲线的 x 值
+    x_fit = np.linspace(min(X), max(X), 100)
+    y_fit = model_func_2ci(x_fit, a, b, c)
+
+    # 绘制原始数据点
+    plt.scatter(X, y, label='源数据', color='blue', alpha=0.6)
+
+    # 绘制拟合曲线
+    plt.plot(x_fit, y_fit, label='拟合曲线', color='red')
+
+    # 标注拟合的点
+    for i in range(len(X)):
+        plt.text(X[i], y[i], f'({X[i]:.2f}, {y[i]:.2f})', fontsize=8, alpha=0.5)
+
+    # 添加标题和标签
+    plt.title('词汇指数与其对应得分拟合曲线')
+    plt.xlabel('词汇指数')
+    plt.ylabel('词汇得分')
+    plt.legend()
+
+    plt.show()
+
+
+def plot_gram():
+    dl_sample = pd.read_csv(r"D:\gs\distance_analysis\aes\dataset\ELLIPSE-Corpus\dl_sample.csv")
+    dl_sample['g_error'] = dl_sample['full_text'].progress_apply(lambda x: check_grammar_errors(x))
+
+    query = """select Grammar, g_error from dl_sample"""
+
+    res = sqldf(query=query, env=locals())
+
+    popt, pcov = curve_fit(model_func_exp, res['g_error'].values, res['Grammar'].values)
+
+    a, b, c = popt
+
+    X = dl_sample['g_error'].values
+    y = dl_sample['Grammar'].values
+
+    # 生成拟合曲线的 x 值
+    x_fit = np.linspace(min(X), max(X), 100)
+    y_fit = model_func_exp(x_fit, a, b, c)
+
+    # 绘制原始数据点
+    plt.scatter(X, y, label='源数据', color='blue', alpha=0.6)
+
+    # 绘制拟合曲线
+    plt.plot(x_fit, y_fit, label='拟合曲线', color='red')
+
+    # 标注拟合的点
+    for i in range(len(X)):
+        plt.text(X[i], y[i], f'({X[i]:.2f}, {y[i]:.2f})', fontsize=8, alpha=0.5)
+
+    # 添加标题和标签
+    plt.title('语法错误个数与其对应得分拟合曲线')
+    plt.xlabel('语法错误个数')
+    plt.ylabel('语法得分')
+    plt.legend()
+
+    plt.show()
 
 
 if __name__ == '__main__':
-    main_run_gram()
+    plot_gram()
