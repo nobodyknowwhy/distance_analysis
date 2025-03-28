@@ -1,3 +1,6 @@
+import os
+
+
 class MyClass:
     def __enter__(self):
         print("Entering the context")
@@ -14,3 +17,4 @@ class MyClass:
 
 with MyClass() as myclass:
     myclass.test_raise_error()
+    

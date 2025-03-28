@@ -1,5 +1,6 @@
 import os
 import traceback
+from functools import reduce
 
 import mysql.connector
 
@@ -74,6 +75,17 @@ class ArkNight:
         self.conn.close()
 
 if __name__ == '__main__':
-    ark = ArkNight("127.0.0.1", 3306, "root", "Zz15987324860", "arknight")
-    ark.connect_to_mysql()
-    ark.insert_into_mysql(r"D:\me\主线")
+    x = [7000 + x * 400 for x in range(0,9)]
+
+    sumup = sum([3 * y for y in x])
+
+    print(sumup / 24)
+
+
+
+
+
+
+
+
+
