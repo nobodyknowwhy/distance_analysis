@@ -3,15 +3,31 @@ import multiprocessing as mp
 import os
 import re
 
+from loguru import logger
+
 
 def get_dataset_mp(file_path: str, dataset_all_list: list, main_role_name: str, type_format: str = 'alpaca'):
     last_npc = ''
     dataset_dict = {'instruction': '', 'last_role': '', 'input': '', 'output': ''}
+
+    try:
+        with open(file_path, 'r', encoding='gbk') as f:
+            a = f.readline()
+            encoding_method = 'gbk'
+    except Exception as e_error:
+        encoding_method = 'utf-8'
+
     if type_format == 'alpaca':
         try:
-            with open(file_path, 'r', encoding='gbk') as f:
+            with open(file_path, 'r', encoding=encoding_method) as f:
                 for line in f:
                     if not (line.startswith('"') or line.startswith('选择')):
+                        line = line.strip()
+                        if line and line != '(特效)':
+                            if dataset_dict['last_role'] == main_role_name:
+                                dataset_dict['output'] += f'({line})'
+                            else:
+                                dataset_dict['instruction'] += f'({line})'
                         continue
 
                     if line.startswith(f'"{main_role_name}"'):
@@ -60,57 +76,7 @@ def get_dataset_mp(file_path: str, dataset_all_list: list, main_role_name: str, 
 
                         last_npc = npc_name
         except Exception as e:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                for line in f:
-                    if not (line.startswith('"') or line.startswith('选择')):
-                        continue
-
-                    if line.startswith(f'"{main_role_name}"'):
-                        operator_line = line.split(':')[1].strip()
-
-                        if dataset_dict['last_role'] == main_role_name:
-                            dataset_dict['output'] += operator_line
-                        else:
-                            dataset_dict['output'] = operator_line
-
-                        dataset_dict['last_role'] = main_role_name
-                    else:
-                        if line.startswith('选择'):
-                            npc_name = '博士'
-
-                            npc_line = re.sub('.*?\"(.*?)\(.*?\)\"', r'\1', line)
-
-                            npc_list = [npc_name, npc_line]
-
-                        else:
-                            npc_list = line.split(':')
-
-                            npc_name = npc_list[0].strip().replace('"', '')
-
-                            npc_line = npc_list[1].strip()
-
-                        if dataset_dict['output']:
-                            if npc_name == dataset_dict['last_role']:
-                                dataset_dict['instruction'] += npc_line
-                            else:
-                                if dataset_dict['instruction']:
-                                    dataset_dict.pop("last_role")
-                                    dataset_dict['user_role'] = last_npc
-                                    dataset_dict['source_file'] = file_path
-                                    dataset_all_list.append(dataset_dict)
-                                dataset_dict = {'instruction': f'{npc_line}', 'last_role': f'{npc_name}',
-                                                'input': '',
-                                                'output': ''}
-                        else:
-                            if npc_name == dataset_dict['last_role']:
-                                dataset_dict['instruction'] += npc_line
-                            else:
-                                dataset_dict['instruction'] = npc_line
-                            dataset_dict = {'instruction': f"{dataset_dict['instruction']}", 'last_role': f'{npc_name}',
-                                            'input': '',
-                                            'output': ''}
-
-                        last_npc = npc_name
+            logger.error(e)
 
 
 def clean_empty_data(json_path: str, out_path: str, exclusions_list=['input']):
@@ -184,7 +150,7 @@ def get_quality_lines(json_path, out_path):
         json.dump(filtered_data, file, ensure_ascii=False, indent=4)
 
 
-def delete_json_item(json_in_path: str, json_out_path: str, pop_list: list, replace_pop:bool=False):
+def delete_json_item(json_in_path: str, json_out_path: str, pop_list: list, replace_pop: bool = False):
     with open(json_in_path, 'r', encoding='utf-8') as file:
         json_data = json.load(file)  # 加载 JSON 数据
 
@@ -201,7 +167,7 @@ def delete_json_item(json_in_path: str, json_out_path: str, pop_list: list, repl
         json.dump(json_data, f, indent=4, ensure_ascii=False)
 
 
-def main_run(role_name: str, run_mp: bool = True, dir_name:str=r"D:/me/主线"):
+def main_run(role_name: str, run_mp: bool = True, dir_name: str = r"D:/me/主线"):
     if run_mp:
         p_list = []
         with mp.Manager() as manager:
@@ -228,21 +194,24 @@ def main_run(role_name: str, run_mp: bool = True, dir_name:str=r"D:/me/主线"):
         return dataset_all_list
 
 
-if __name__ == '__main__':
-    role_name = "阿黛尔"
+def create_dataset_json(role_name: str, english_name: str, dir_name: str, run_mp:bool):
 
-    dataset_all_list = main_run(role_name, False, r"D:\me\arknight\支线")
+    dataset_all_list = main_run(role_name, run_mp, dir_name)
 
-    json_no_shulff = r"D:\gs\distance_analysis\lora_arknight\dataset\aefl\ade_all_role.json"
+    path_to_data = os.path.join(os.getcwd(), 'dataset', english_name)
 
-    json_one_sigle = r"D:/gs/distance_analysis/lora_arknight/dataset\aefl\ade_sig.json"
+    os.makedirs(path_to_data, exist_ok=True)
 
-    json_with_history = r"D:/gs/distance_analysis/lora_arknight/dataset\aefl\ade_his.json"
+    json_no_shulff = os.path.join(path_to_data, f'{english_name}_no_shul.json')
+
+    json_one_sigle = os.path.join(path_to_data, f'{english_name}_sig.json')
+
+    json_with_history = os.path.join(path_to_data, f'{english_name}_his.json')
 
     with open(json_no_shulff, 'w', encoding='utf-8') as f:
         json.dump(dataset_all_list, f, indent=4, ensure_ascii=False)
 
-    delete_json_item(json_no_shulff, json_one_sigle,['source_file', 'user_role'])
+    delete_json_item(json_no_shulff, json_one_sigle, ['source_file', 'user_role'])
 
     # get_quality_lines(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all.json", r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_arknight.json")
 
@@ -258,3 +227,13 @@ if __name__ == '__main__':
     # clean_empty_data(r"D:/gs/distance_analysis/lora_arknight/dataset/theresa_all_role_noshulff_history.json",
     #                  r"D:/gs/distance_analysis/lora_arknight/dataset/theresa_all_role_noshulff_history_noempty.json",
     #                  ['input'])
+
+
+if __name__ == '__main__':
+    role_name = "阿黛尔"
+
+    english_name = "Eyjafjalla"
+
+    dir_name = r"D:\me\arknight\支线"
+
+    create_dataset_json(role_name=role_name, english_name=english_name, dir_name=dir_name, run_mp=False)
