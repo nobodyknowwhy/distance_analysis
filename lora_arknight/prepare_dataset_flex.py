@@ -184,7 +184,7 @@ def get_quality_lines(json_path, out_path):
         json.dump(filtered_data, file, ensure_ascii=False, indent=4)
 
 
-def delete_json_item(json_in_path: str, json_out_path: str, pop_list: list):
+def delete_json_item(json_in_path: str, json_out_path: str, pop_list: list, replace_pop:bool=False):
     with open(json_in_path, 'r', encoding='utf-8') as file:
         json_data = json.load(file)  # 加载 JSON 数据
 
@@ -192,16 +192,21 @@ def delete_json_item(json_in_path: str, json_out_path: str, pop_list: list):
         for x in pop_list:
             item.pop(x, None)
 
+    if replace_pop:
+        for item in json_data:
+            for x in pop_list:
+                item[x] = ''
+
     with open(json_out_path, 'w', encoding='utf-8') as f:
         json.dump(json_data, f, indent=4, ensure_ascii=False)
 
 
-def main_run(role_name: str, run_mp: bool = True):
+def main_run(role_name: str, run_mp: bool = True, dir_name:str=r"D:/me/主线"):
     if run_mp:
         p_list = []
         with mp.Manager() as manager:
             dataset_all_list = manager.list([])
-            for root_name, dir_list, file_list in os.walk(r"D:/me/主线"):
+            for root_name, dir_list, file_list in os.walk(dir_name):
                 for file_name in file_list:
                     file_path = os.path.join(root_name, file_name)
 
@@ -215,7 +220,7 @@ def main_run(role_name: str, run_mp: bool = True):
             return list(dataset_all_list)
     else:
         dataset_all_list = []
-        for root_name, dir_list, file_list in os.walk(r"D:/me/主线"):
+        for root_name, dir_list, file_list in os.walk(dir_name):
             for file_name in file_list:
                 file_path = os.path.join(root_name, file_name)
                 get_dataset_mp(file_path, dataset_all_list, role_name)
@@ -224,25 +229,32 @@ def main_run(role_name: str, run_mp: bool = True):
 
 
 if __name__ == '__main__':
-    dataset_all_list = main_run("特蕾西娅", False)
+    role_name = "阿黛尔"
 
-    with open(r"D:/gs/distance_analysis/lora_arknight/dataset/theresa_all_role_noshulff.json", 'w',
-              encoding='utf-8') as f:
+    dataset_all_list = main_run(role_name, False, r"D:\me\arknight\支线")
+
+    json_no_shulff = r"D:\gs\distance_analysis\lora_arknight\dataset\aefl\ade_all_role.json"
+
+    json_one_sigle = r"D:/gs/distance_analysis/lora_arknight/dataset\aefl\ade_sig.json"
+
+    json_with_history = r"D:/gs/distance_analysis/lora_arknight/dataset\aefl\ade_his.json"
+
+    with open(json_no_shulff, 'w', encoding='utf-8') as f:
         json.dump(dataset_all_list, f, indent=4, ensure_ascii=False)
 
-    delete_json_item(r"D:/gs/distance_analysis/lora_arknight/dataset/theresa_all_role_noshulff.json",
-                     r"D:/gs/distance_analysis/lora_arknight/dataset/theresa_on_sigle.json",
-                     ['source_file', 'user_role'])
+    delete_json_item(json_no_shulff, json_one_sigle,['source_file', 'user_role'])
 
     # get_quality_lines(r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_all.json", r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_arknight.json")
 
     # get_special_npc('特蕾西娅', r"D:/gs/distance_analysis/lora_arknight/dataset/amiya2.json", r"D:/gs/distance_analysis/lora_arknight/dataset/amiya_theresa.json")
 
-    # dataset_all_list = create_history_from_json("特蕾西娅", r"D:/gs/distance_analysis/lora_arknight/dataset/theresa_all_role_noshulff.json")
-    #
-    # with open(r"D:/gs/distance_analysis/lora_arknight/dataset/theresa_all_role_noshulff_history.json", 'w', encoding='utf-8') as f:
-    #     json.dump(dataset_all_list, f, indent=4, ensure_ascii=False)
-    #
+    dataset_all_list = create_history_from_json(role_name, json_no_shulff)
+
+    with open(json_with_history, 'w', encoding='utf-8') as f:
+        json.dump(dataset_all_list, f, indent=4, ensure_ascii=False)
+
+    delete_json_item(json_with_history, json_with_history, ['system'], replace_pop=True)
+
     # clean_empty_data(r"D:/gs/distance_analysis/lora_arknight/dataset/theresa_all_role_noshulff_history.json",
     #                  r"D:/gs/distance_analysis/lora_arknight/dataset/theresa_all_role_noshulff_history_noempty.json",
     #                  ['input'])
