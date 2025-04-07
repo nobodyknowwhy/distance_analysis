@@ -230,10 +230,10 @@ def create_dataset_json(role_name: str, english_name: str, dir_name: str, run_mp
 
 
 if __name__ == '__main__':
-    role_name = "阿黛尔"
+    role_name = "阿米娅"
 
-    english_name = "Eyjafjalla"
+    english_name = "Amiya"
 
-    dir_name = r"D:\me\arknight\支线"
+    dir_name = r"D:\me\arknight"
 
     create_dataset_json(role_name=role_name, english_name=english_name, dir_name=dir_name, run_mp=False)

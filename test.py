@@ -1,3 +1,5 @@
+import hashlib
+import json
 import os
 import traceback
 from functools import reduce
@@ -75,11 +77,7 @@ class ArkNight:
         self.conn.close()
 
 if __name__ == '__main__':
-    x = [7000 + x * 400 for x in range(0,9)]
-
-    sumup = sum([3 * y for y in x])
-
-    print(sumup / 24)
+    print(hashlib.md5("腾讯元宝".encode('utf-8')).hexdigest())
 
 
 
