@@ -1,3 +1,6 @@
+import json
+
+
 class TencentYB:
     def __init__(self, base_url: str = '', headers=None):
         self.base_url = 'https://yuanbao.tencent.com/chat/naQivTmsDa/ad5dee9e-ec18-489c-a2c1-bf8f782b1ab5'
@@ -9,7 +12,6 @@ class TencentYB:
 
 import httpx
 
-# 请求 URL
 url = "https://yuanbao.tencent.com/api/chat/ad5dee9e-ec18-489c-a2c1-bf8f782b1ab5"
 
 # 请求头
@@ -40,12 +42,39 @@ payload = {
 }
 
 # 发送请求
+thinking_str = ''
+output_str = ''
 with httpx.Client() as client:
-    response = client.post(url, headers=headers, json=payload)
+    with client.stream('POST', url=url, headers=headers, json=payload) as response:
+        if response.status_code == 200:
+            for chunk in response.iter_bytes():
+                chunk_str = str(chunk.decode("utf-8"))
+                chunk_lines = chunk_str.splitlines()
+                for line in chunk_lines:
+                    if line:
 
-    # 检查响应状态
-    if response.status_code == 200:
-        print("请求成功！")
-        print("响应内容：", response.text)
-    else:
-        print(f"请求失败，状态码：{response.status_code}\n{response}")
+                        line_list = line.split(':')
+                        if len(line_list) == 2:
+                            continue
+
+                        try:
+                            data_json = json.loads(':'.join(line_list[1:]))
+                        except Exception as e:
+                            continue
+
+                        thinking_text = data_json.get('content', '')
+                        output_text = data_json.get('msg', '')
+
+                        print(thinking_text, end='')
+                        print(output_text, end='')
+
+                        thinking_str += thinking_text
+                        output_str += output_text
+            print()
+        else:
+            raise ValueError(f"请求失败啦！状态码: {response.status_code}，呜呜呜~")
+
+from loguru import logger
+
+logger.warning(f"\n<think>\n{thinking_str}\n<\\think>")
+logger.success(f"\n{output_str}")
