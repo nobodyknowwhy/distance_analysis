@@ -150,7 +150,7 @@ def get_quality_lines(json_path, out_path):
         json.dump(filtered_data, file, ensure_ascii=False, indent=4)
 
 
-def delete_json_item(json_in_path: str, json_out_path: str, pop_list: list, replace_pop: bool = False):
+def delete_json_item(json_in_path: str, json_out_path: str, pop_list: list, replace_pop: int | str = -1):
     with open(json_in_path, 'r', encoding='utf-8') as file:
         json_data = json.load(file)  # 加载 JSON 数据
 
@@ -158,10 +158,10 @@ def delete_json_item(json_in_path: str, json_out_path: str, pop_list: list, repl
         for x in pop_list:
             item.pop(x, None)
 
-    if replace_pop:
+    if replace_pop != -1:
         for item in json_data:
             for x in pop_list:
-                item[x] = ''
+                item[x] = replace_pop
 
     with open(json_out_path, 'w', encoding='utf-8') as f:
         json.dump(json_data, f, indent=4, ensure_ascii=False)
@@ -194,8 +194,7 @@ def main_run(role_name: str, run_mp: bool = True, dir_name: str = r"D:/me/主线
         return dataset_all_list
 
 
-def create_dataset_json(role_name: str, english_name: str, dir_name: str, run_mp:bool):
-
+def create_dataset_json(role_name: str, english_name: str, dir_name: str, run_mp: bool):
     dataset_all_list = main_run(role_name, run_mp, dir_name)
 
     path_to_data = os.path.join(os.getcwd(), 'dataset', english_name)
@@ -222,7 +221,7 @@ def create_dataset_json(role_name: str, english_name: str, dir_name: str, run_mp
     with open(json_with_history, 'w', encoding='utf-8') as f:
         json.dump(dataset_all_list, f, indent=4, ensure_ascii=False)
 
-    delete_json_item(json_with_history, json_with_history, ['system'], replace_pop=True)
+    delete_json_item(json_with_history, json_with_history, ['system'], replace_pop=f"请你现在是{role_name}，英文名也叫做{english_name}。")
 
     # clean_empty_data(r"D:/gs/distance_analysis/lora_arknight/dataset/theresa_all_role_noshulff_history.json",
     #                  r"D:/gs/distance_analysis/lora_arknight/dataset/theresa_all_role_noshulff_history_noempty.json",
@@ -230,9 +229,9 @@ def create_dataset_json(role_name: str, english_name: str, dir_name: str, run_mp
 
 
 if __name__ == '__main__':
-    role_name = "阿米娅"
+    role_name = "阿黛尔"
 
-    english_name = "Amiya"
+    english_name = "Eyjafjalla"
 
     dir_name = r"D:\me\arknight"
 

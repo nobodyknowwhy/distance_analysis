@@ -81,6 +81,8 @@ class KIMI:
 
         base_url = f"https://kimi.moonshot.cn/api/chat/{dialog_id}/completion/stream"
 
+        thinking_str = ''
+
         output_str = ''
 
         data = {
@@ -107,30 +109,113 @@ class KIMI:
                             if line:
                                 line_list = line.split(':')
                                 data_json = json.loads(':'.join(line_list[1:]))
-
                                 part_text = data_json.get('text', '')
-                                if part_text == '获取流式HTTP请求输出':
-                                    continue
+
+                                if data_json.get('event', '') == 'k1':
+                                    thinking_str += part_text
+                                elif data_json.get('event', '') == 'cmpl':
+                                    output_str += part_text
+
                                 if is_print:
                                     print(part_text, end='')
-                                output_str += part_text
                     print()
                 else:
                     raise ValueError(f"请求失败啦！状态码: {response.status_code}，呜呜呜~")
 
         base_url = f'https://kimi.moonshot.cn/chat/{dialog_id}'
 
-        return {'base_url': base_url, 'result_text': output_str, 'success': True}
+        return {'base_url': base_url, 'result_text': {'thinking': thinking_str, 'output': output_str}, 'success': True}
 
 
-if __name__ == '__main__':
+class TencentYB:
+    def __init__(self, cookie: str = '', user_agent=''):
+        self.__base_method = 'POST'
+        if cookie or user_agent:
+            if not cookie or not user_agent:
+                raise ValueError("不要这么任性！你要传参就必须同时传入 cookie headers，哼！")
+            self.cookie = cookie
+            self.user_agent = user_agent
+
+        else:
+            self.cookie = "_ga=GA1.2.1761294405.1728537672; _gcl_au=1.1.1132276475.1736386827; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%2219274dfb768d15-075e76b1b0a2f1-4c657b58-2073600-19274dfb769db%22%2C%22first_id%22%3A%22%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E5%BC%95%E8%8D%90%E6%B5%81%E9%87%8F%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMTkyNzRkZmI3NjhkMTUtMDc1ZTc2YjFiMGEyZjEtNGM2NTdiNTgtMjA3MzYwMC0xOTI3NGRmYjc2OWRiIn0%3D%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%22%2C%22value%22%3A%22%22%7D%2C%22%24device_id%22%3A%2219274dfb768d15-075e76b1b0a2f1-4c657b58-2073600-19274dfb769db%22%7D; _qimei_uuid42=1921c0e3b2f100c55ea0e03be84de51c2e191d0653; _qimei_fingerprint=c3e64d763595732957eeb61a9b7af521; hy_source=web; _qimei_i_3=5dc82d87955257dec09eab39598771e4a6eca1f2105d0a8bb48f2c592396263d693662943c89e2a181b4; hy_user=134243e8908c4863b52c1aaefb4a2910; hy_token=r65mJjGQM6bnz8CcvJHxZR+uzJ1eCdeAMnc/kYP2aQRr3CbGFH/zV3HyDs+0FFSoE9ah9oeJq1H/rzAq+nldCw==; _qimei_h38=fdedc1ba5ea0e03be84de51c02000007c1930b; _qimei_i_1=78ba6ad4c10f0488c0c5af350ed573b5f7edf6a41a5f57d7b18e7b582493206c616330c63980e1dc8489e3d0"
+            self.user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36 Edg/129.0.0.0'
+
+        self.__headers = {"Cookie": self.cookie, 'User-Agent': self.user_agent}
+
+    def __str__(self):
+        return '你可能不知道，这是一个腾讯元宝免费聊天的类！嘻嘻嘻~'
+
+    def __repr__(self):
+        return f'TencentYB(BASE_METHOD: {self.__base_method}, headers: {self.__headers})'
+
+    @exception
+    def chat(self, content: str, create_new_dialog: bool = False, base_url: str = '', is_print: bool = False) -> dict:
+
+        url = "https://yuanbao.tencent.com/api/chat/ad5dee9e-ec18-489c-a2c1-bf8f782b1ab5"
+
+        payload = {
+            "model": "gpt_175B_0404",
+            "prompt": f"{content}",
+            "plugin": "Adaptive",
+            "displayPrompt": f"{content}",
+            "displayPromptType": 1,
+            "options": {
+                "imageIntention": {
+                    "needIntentionModel": True,
+                    "backendUpdateFlag": 2,
+                    "intentionStatus": True
+                }
+            },
+            "multimedia": [],
+            "agentId": "naQivTmsDa",
+            "supportHint": 1,
+            "version": "v2",
+            "chatModelId": "deep_seek"
+        }
+
+        thinking_str = ''
+        output_str = ''
+        with httpx.Client() as client:
+            with client.stream('POST', url=url, headers=self.__headers, json=payload) as response:
+                if response.status_code == 200:
+                    for chunk in response.iter_bytes():
+                        chunk_str = str(chunk.decode("utf-8"))
+                        chunk_lines = chunk_str.splitlines()
+                        for line in chunk_lines:
+                            if line:
+
+                                line_list = line.split(':')
+                                if len(line_list) == 2:
+                                    continue
+
+                                try:
+                                    data_json = json.loads(':'.join(line_list[1:]))
+                                except Exception as e:
+                                    continue
+
+                                thinking_text = data_json.get('content', '')
+                                output_text = data_json.get('msg', '')
+
+                                print(thinking_text, end='')
+                                print(output_text, end='')
+
+                                thinking_str += thinking_text
+                                output_str += output_text
+                    print()
+                else:
+                    raise ValueError(f"请求失败啦！状态码: {response.status_code}，呜呜呜~")
+
+        return {'base_url': url, 'result_text': {'thinking': thinking_str, 'output': output_str}, 'success': True}
+
+
+def chat_with_kimi_example():
     kimi = KIMI()
 
     logger.info(f"类介绍:{kimi}")
 
     logger.info(f"类详细介绍:{kimi.__repr__()}")
 
-    dict_re = kimi.chat(content="哈哈害，我又来了啊！", create_new_dialog=True)
+    dict_re = kimi.chat(content="哈哈害，我又来了啊！", create_new_dialog=True, is_print=True)
 
     if dict_re['success']:
 
@@ -140,3 +225,26 @@ if __name__ == '__main__':
 
     else:
         logger.error(dict_re['result_text'])
+
+
+def chat_with_TencentYB_example():
+    tc = TencentYB()
+
+    logger.info(f"类介绍:{tc}")
+
+    logger.info(f"类详细介绍:{tc.__repr__()}")
+
+    dict_re = tc.chat(content="哈哈害，我又来了啊！", is_print=True)
+
+    if dict_re['success']:
+
+        logger.warning(f"对话链接：\n{dict_re['base_url']}")
+
+        logger.success(f"对话结果：\n{dict_re['result_text']}")
+
+    else:
+        logger.error(dict_re['result_text'])
+
+
+if __name__ == '__main__':
+    chat_with_TencentYB_example()

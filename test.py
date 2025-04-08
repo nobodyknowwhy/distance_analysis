@@ -2,6 +2,7 @@ import hashlib
 import json
 import os
 import traceback
+import uuid
 from functools import reduce
 
 import mysql.connector
@@ -77,7 +78,9 @@ class ArkNight:
         self.conn.close()
 
 if __name__ == '__main__':
-    print(hashlib.md5("腾讯元宝".encode('utf-8')).hexdigest())
+    timestamp = f"11744075894174"  # 示例时间戳（毫秒）
+    uuid_obj = uuid.uuid1(node=None, clock_seq=None)
+    print(uuid_obj)
 
 
 
