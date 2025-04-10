@@ -40,7 +40,7 @@ class KIMI:
         return f'KIMI(BASE_METHOD: {self.__base_method}, headers: {self.__headers})'
 
     @exception
-    def __create_new_dialog__(self, headers) -> str:
+    def __create_new_dialog(self, headers) -> str:
         """
 
         :param headers: 类里面的请求头捏~
@@ -77,7 +77,7 @@ class KIMI:
             raise ValueError(r"必须输入你的聊天base_url参数哦。或者你可以开启新对话，设置: create_new_dialog=True")
 
         if create_new_dialog:
-            dialog_id = self.__create_new_dialog__(self.__headers)
+            dialog_id = self.__create_new_dialog(self.__headers)
 
         base_url = f"https://kimi.moonshot.cn/api/chat/{dialog_id}/completion/stream"
 
