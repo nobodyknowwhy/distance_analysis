@@ -1,92 +1,117 @@
-import hashlib
-import json
-import os
-import traceback
-import uuid
-from functools import reduce
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import Dataset, DataLoader
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+import numpy as np
 
-import mysql.connector
+# 生成合成数据集
+X, y = make_classification(n_samples=1000, n_features=20, n_classes=3, n_informative=4, random_state=42)
 
-class ArkNight:
+# 数据预处理
+scaler = StandardScaler()
+X = scaler.fit_transform(X)
 
-    def __init__(self, host, port, user_name, password, db_name):
-        self.host = host
-        self.port = port
-        self.user_name = user_name
-        self.password = password
-        self.db_name = db_name
-        self.conn = None
+# 划分训练集和测试集
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    def connect_to_mysql(self):
-        try:
-            self.conn = mysql.connector.connect(
-                host=self.host,
-                port=self.port,
-                user=self.user_name,
-                password=self.password,
-                database=self.db_name,
-            )
+# 将NumPy数组转换为PyTorch张量
+X_train = torch.tensor(X_train, dtype=torch.float32)
+X_test = torch.tensor(X_test, dtype=torch.float32)
+y_train = torch.tensor(y_train, dtype=torch.long)
+y_test = torch.tensor(y_test, dtype=torch.long)
 
-        except Exception as e:
-            return False, traceback.format_exc()
+# 创建数据加载器
+class CustomDataset(Dataset):
+    def __init__(self, X, y):
+        self.X = X
+        self.y = y
 
-        return True, ''
+    def __len__(self):
+        return len(self.X)
 
-    def insert_into_mysql(self, path:str):
+    def __getitem__(self, idx):
+        return self.X[idx], self.y[idx]
 
-        cursor = self.conn.cursor()
+train_dataset = CustomDataset(X_train, y_train)
+test_dataset = CustomDataset(X_test, y_test)
 
-        for root, dir_list, file_list in os.walk(path):
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
-            for file_name in file_list:
+# 定义模型
+class NeuralNetwork(nn.Module):
+    def __init__(self, input_size, hidden_size1, hidden_size2, output_size):
+        super(NeuralNetwork, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size1)
+        self.relu1 = nn.ReLU()
+        self.fc2 = nn.Linear(hidden_size1, hidden_size2)
+        self.relu2 = nn.ReLU()
+        self.fc3 = nn.Linear(hidden_size2, output_size)
+        self.softmax = nn.Softmax(dim=1)
 
-                if file_name.endswith('.txt'):
+    def forward(self, x):
+        x = self.fc1(x)
+        x = self.relu1(x)
+        x = self.fc2(x)
+        x = self.relu2(x)
+        x = self.fc3(x)
+        x = self.softmax(x)
+        return x
 
-                    file_path = os.path.join(root, file_name)
-                    try:
-                        with open(file_path, 'r', encoding='utf-8') as f:
-                            items = f.readlines()
+# 初始化模型
+input_size = X_train.shape[1]
+hidden_size1 = 64
+hidden_size2 = 32
+output_size = 3
 
-                        for item in items:
-                            if item.startswith('"'):
-                                operator_name, line = item.split(':')[0].replace('"',''), item.split(':')[1]
+model = NeuralNetwork(input_size, hidden_size1, hidden_size2, output_size)
 
-                                query = """INSERT INTO operator_lines (operator_name, line) VALUES (%s, %s)"""
+# 定义损失函数和优化器
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-                                tuple_insert = (operator_name, line)
+# 训练模型
+num_epochs = 20
 
-                                cursor.execute(query, tuple_insert)
+for epoch in range(num_epochs):
+    model.train()
+    for batch_X, batch_y in train_loader:
+        # 前向传播
+        outputs = model(batch_X)
+        loss = criterion(outputs, batch_y)
 
-                    except Exception as e:
+        # 反向传播和优化
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
-                        with open(file_path, 'r', encoding='gbk') as f:
-                            items = f.readlines()
+    # 验证
+    model.eval()
+    with torch.no_grad():
+        total_correct = 0
+        total_samples = 0
+        for batch_X, batch_y in test_loader:
+            outputs = model(batch_X)
+            _, predicted = torch.max(outputs, 1)
+            total_samples += batch_y.size(0)
+            total_correct += (predicted == batch_y).sum().item()
 
-                        for item in items:
-                            if item.startswith('"'):
-                                operator_name, line = item.split(':')[0].replace('"',''), item.split(':')[1]
+        accuracy = total_correct / total_samples
+        print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}, Accuracy: {accuracy:.4f}')
 
-                                query = """INSERT INTO operator_lines (operator_name, line) VALUES (%s, %s)"""
+# 评估模型
+model.eval()
+with torch.no_grad():
+    total_correct = 0
+    total_samples = 0
+    for batch_X, batch_y in test_loader:
+        outputs = model(batch_X)
+        _, predicted = torch.max(outputs, 1)
+        total_samples += batch_y.size(0)
+        total_correct += (predicted == batch_y).sum().item()
 
-                                tuple_insert = (operator_name, line)
-
-                                cursor.execute(query, tuple_insert)
-
-        self.conn.commit()
-
-        cursor.close()
-        self.conn.close()
-
-if __name__ == '__main__':
-    timestamp = f"11744075894174"  # 示例时间戳（毫秒）
-    uuid_obj = uuid.uuid1(node=None, clock_seq=None)
-    print(uuid_obj)
-
-
-
-
-
-
-
-
-
+    accuracy = total_correct / total_samples
+    print(f'Test Accuracy: {accuracy:.4f}')

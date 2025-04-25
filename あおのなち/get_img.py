@@ -1,13 +1,12 @@
 import os.path
-import multiprocessing as mp
 import time
 
 import httpx
-from tqdm import tqdm
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 
 
-def save_img_from_url(save_path:str, url:str=r"https://www.bilibili.com/opus/994524347695628290"):
+def save_img_from_url(save_path: str, url: str = r"https://www.bilibili.com/opus/994524347695628290"):
     header = {
         'User-Agent': """Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36 Edg/129.0.0.0"""
     }
@@ -15,7 +14,6 @@ def save_img_from_url(save_path:str, url:str=r"https://www.bilibili.com/opus/994
     res = httpx.get(url, headers=header)
 
     soup = BeautifulSoup(res.text, "html.parser")
-
 
     title, chapter = soup.find('title').text.split('-')[0].strip().split()
 
@@ -32,6 +30,7 @@ def save_img_from_url(save_path:str, url:str=r"https://www.bilibili.com/opus/994
 
         with open(target_save_img, 'wb') as f:
             f.write(res.content)
+
 
 if __name__ == '__main__':
     p_list = []
@@ -50,5 +49,6 @@ if __name__ == '__main__':
             except Exception as e:
                 import traceback
                 from loguru import logger
+
                 logger.error(traceback.format_exception(e))
             time.sleep(60)

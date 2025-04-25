@@ -221,7 +221,7 @@ def create_dataset_json(role_name: str, english_name: str, dir_name: str, run_mp
     with open(json_with_history, 'w', encoding='utf-8') as f:
         json.dump(dataset_all_list, f, indent=4, ensure_ascii=False)
 
-    delete_json_item(json_with_history, json_with_history, ['system'], replace_pop=f"请你现在是{role_name}，英文名也叫做{english_name}。")
+    delete_json_item(json_with_history, json_with_history, ['system'], replace_pop=f"请你现在扮演{role_name}，英文名也叫做{english_name}。")
 
     # clean_empty_data(r"D:/gs/distance_analysis/lora_arknight/dataset/theresa_all_role_noshulff_history.json",
     #                  r"D:/gs/distance_analysis/lora_arknight/dataset/theresa_all_role_noshulff_history_noempty.json",
@@ -229,9 +229,9 @@ def create_dataset_json(role_name: str, english_name: str, dir_name: str, run_mp
 
 
 if __name__ == '__main__':
-    role_name = "阿黛尔"
+    role_name = "普瑞赛斯"
 
-    english_name = "Eyjafjalla"
+    english_name = "Priestess"
 
     dir_name = r"D:\me\arknight"
 
