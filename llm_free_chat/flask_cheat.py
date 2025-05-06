@@ -52,8 +52,6 @@ def generate_stream(text):
 
         json_data = json.dumps(data)
 
-        json_data = re.sub(f'.*?"text"\\\')
-
         yield f"data: {json_data}\n\n"
         time.sleep(0.5)  # 模拟数据生成的延迟
 

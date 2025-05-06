@@ -103,21 +103,24 @@ class KIMI:
             with client.stream(self.__base_method, url=base_url, headers=self.__headers, json=data) as response:
                 if response.status_code == 200:
                     for chunk in response.iter_bytes():
-                        chunk_str = str(chunk.decode("utf-8"))
-                        chunk_lines = chunk_str.splitlines()
-                        for line in chunk_lines:
-                            if line:
-                                line_list = line.split(':')
-                                data_json = json.loads(':'.join(line_list[1:]))
-                                part_text = data_json.get('text', '')
+                        try:
+                            chunk_str = str(chunk.decode("utf-8"))
+                            chunk_lines = chunk_str.splitlines()
+                            for line in chunk_lines:
+                                if line:
+                                    line_list = line.split(':')
+                                    data_json = json.loads(':'.join(line_list[1:]))
+                                    part_text = data_json.get('text', '')
 
-                                if data_json.get('event', '') == 'k1':
-                                    thinking_str += part_text
-                                elif data_json.get('event', '') == 'cmpl':
-                                    output_str += part_text
+                                    if data_json.get('event', '') == 'k1':
+                                        thinking_str += part_text
+                                    elif data_json.get('event', '') == 'cmpl':
+                                        output_str += part_text
 
-                                if is_print:
-                                    print(part_text, end='')
+                                    if is_print:
+                                        print(part_text, end='')
+                        except Exception as e:
+                            continue
                     print()
                 else:
                     raise ValueError(f"请求失败啦！状态码: {response.status_code}，呜呜呜~")
@@ -229,6 +232,8 @@ def chat_with_kimi_example(content: str = "你好", base_url: str = ''):
 
         logger.success(f"对话结果：\n{dict_re['result_text']}")
 
+        return dict_re['result_text']
+
     else:
         logger.error(dict_re['result_text'])
 
@@ -250,6 +255,8 @@ def chat_with_TencentYB_example(content: str = "你好",
         logger.warning(f"对话链接：\n{dict_re['base_url']}")
 
         logger.success(f"对话结果：\n{dict_re['result_text']}")
+
+        return dict_re['result_text']['output']
 
     else:
         logger.error(dict_re['result_text'])
