@@ -16,3 +16,5 @@ aes/out/
 あおのなち/与你相恋到生命尽头
 tower_t/tower_img
 lora_arknight/dataset
+*.html*
+crawl_packet/result
