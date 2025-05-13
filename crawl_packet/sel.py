@@ -8,14 +8,21 @@ driver = webdriver.Edge()
 driver.implicitly_wait(10)
 
 # 打开网页
-driver.get("https://www.baidu.com")
+driver.get("https://www.bilibili.com/")
 
-element = driver.find_element(By.ID, 'kw')
+ele_list = driver.find_elements(By.XPATH, '//div[@class="channel-items__left"]/a[@class="channel-link"]')
 
-element.send_keys('python')
+for element in ele_list:
+    url_ele = element.get_attribute('href')
 
-driver.find_element(By.XPATH, '//input[@id="su"]').click()
+    element.click()
 
-time.sleep(5)
+    driver.refresh()
+
+    ele_part = driver.find_elements(By.XPATH, '//div[@class="home-recommand-feed-body"]/div')
+
+
+
+
 
 driver.quit()
